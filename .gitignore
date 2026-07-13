@@ -1,0 +1,47 @@
+# Environment files
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Next.js build output and caches
+.next/
+.next-build/
+next-build-cache/
+frontend/.next/
+frontend/.next-build/
+frontend/out/
+
+# Go build artifacts
+*.exe
+*.test
+*.out
+backend/api-server
+backend/api-server.exe
+
+# Logs and runtime files
+*.log
+logs/
+tmp/
+temp/
+coverage/
+coverage.out
+
+# Local tooling and generated assistant artifacts
+.agents/
+.codex/
+
+# IDE and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Local Docker overrides
+docker-compose.override.yml
