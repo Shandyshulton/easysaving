@@ -9,9 +9,75 @@ const inter = Inter({
   display: "swap"
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const siteName = "EasySaving";
+const siteDescription =
+  "EasySaving membantu mencatat pemasukan, pengeluaran, rekening, kategori, dan laporan keuangan pribadi dalam satu dashboard yang rapi.";
+
 export const metadata: Metadata = {
-  title: "EasySaving",
-  description: "Personal finance dashboard",
+  metadataBase: new URL(siteUrl),
+  applicationName: siteName,
+  title: {
+    default: "EasySaving | Dashboard Keuangan Pribadi",
+    template: `%s | ${siteName}`
+  },
+  description: siteDescription,
+  keywords: [
+    "EasySaving",
+    "aplikasi keuangan",
+    "catatan keuangan",
+    "manajemen keuangan pribadi",
+    "budgeting",
+    "pengeluaran",
+    "pemasukan",
+    "laporan keuangan"
+  ],
+  authors: [{ name: "EasySaving" }],
+  creator: "EasySaving",
+  publisher: "EasySaving",
+  category: "finance",
+  alternates: {
+    canonical: "/"
+  },
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: "/",
+    siteName,
+    title: "EasySaving | Dashboard Keuangan Pribadi",
+    description: siteDescription,
+    images: [
+      {
+        url: "/tab-easysaving.png",
+        alt: "Logo EasySaving"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "EasySaving | Dashboard Keuangan Pribadi",
+    description: siteDescription,
+    images: ["/tab-easysaving.png"]
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1
+    }
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: siteName,
+    statusBarStyle: "default"
+  },
+  formatDetection: {
+    telephone: false
+  },
   icons: {
     icon: [
       {
