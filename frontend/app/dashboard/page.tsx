@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, Banknote, Car, ChevronRight, ReceiptText, Utensils, WalletCards } from "lucide-react";
+import { ArrowDown, ArrowUp, Banknote, Car, ChevronRight, PieChartIcon, ReceiptText, Utensils, WalletCards } from "lucide-react";
 import { Cell, Pie, PieChart } from "recharts";
 import { AccountSelector } from "@/components/account/account-selector";
 import { AppShell } from "@/components/app-shell";
@@ -14,16 +14,9 @@ import { useActiveAccountId } from "@/hooks/use-active-account";
 import { formatIDR, today } from "@/lib/utils";
 import type { Account, CategoryTotal, Transaction } from "@/types/api";
 
-const fallbackTrend = [
-  { category_id: "food", category_name: "Food & Dining", total: "45", percentage: "45", color: "#FF6B6B" },
-  { category_id: "transport", category_name: "Transportation", total: "30", percentage: "30", color: "#9AA4BF" },
-  { category_id: "shopping", category_name: "Shopping", total: "25", percentage: "25", color: "#C4D3C5" }
-] satisfies Partial<CategoryTotal>[];
-
 function trendRows(rows?: CategoryTotal[] | null) {
   const source = Array.isArray(rows) ? rows : [];
-  const nonZero = source.filter((item) => Number(item.total) > 0);
-  return nonZero.length > 0 ? nonZero : fallbackTrend;
+  return source.filter((item) => Number(item.total) > 0);
 }
 
 function transactionTitle(item: Transaction) {
@@ -124,13 +117,13 @@ export default function DashboardPage() {
     const rows = trendRows(data?.category_totals);
     return rows.slice(0, 3).map((item, index) => ({
       ...item,
-      value: Number(item.percentage ?? item.total ?? 0) || Number(fallbackTrend[index % fallbackTrend.length].percentage),
-      color: item.color ?? fallbackTrend[index % fallbackTrend.length].color
+      value: Number(item.percentage ?? item.total ?? 0),
+      color: item.color || ["#FF6B6B", "#9AA4BF", "#C4D3C5"][index % 3]
     }));
   }, [data?.category_totals]);
   const recent = transactions;
   const totalExpense = Number(data?.total_expense ?? 0);
-  const chartTotal = totalExpense > 0 ? formatIDR(data?.total_expense ?? 0) : "Rp 1.2M";
+  const chartTotal = formatIDR(data?.total_expense ?? 0);
   const greetingName = user?.name?.trim() || "EasySaving User";
 
   useEffect(() => {
@@ -188,43 +181,59 @@ export default function DashboardPage() {
               <h2 className="text-xl font-bold leading-7 text-[#0f172a]">Trend Pengeluaran</h2>
               <Link href="/reports" className="text-sm font-semibold text-[#007a50]">See all</Link>
             </div>
-            <div className="relative mx-auto h-[224px] w-[224px] sm:h-[240px] sm:w-[240px]">
-              <PieChart width={240} height={240} className="absolute left-1/2 top-1/2 h-[224px] w-[224px] -translate-x-1/2 -translate-y-1/2 sm:h-[240px] sm:w-[240px]">
-                <Pie
-                  data={chartRows}
-                  dataKey="value"
-                  nameKey="category_name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={76}
-                  outerRadius={112}
-                  startAngle={90}
-                  endAngle={-270}
-                  paddingAngle={0}
-                  isAnimationActive={false}
-                  stroke="none"
-                >
-                  {chartRows.map((item) => <Cell key={item.category_id} fill={item.color} />)}
-                </Pie>
-              </PieChart>
-              <div className="pointer-events-none absolute inset-0 grid place-items-center">
-                <div className="text-center">
-                  <p className="text-base font-medium text-[#64748b]">Total</p>
-                  <p className="mt-1 text-xl font-bold text-[#0f172a] number-align">{chartTotal}</p>
+            {chartRows.length > 0 ? (
+              <>
+                <div className="relative mx-auto h-[224px] w-[224px] sm:h-[240px] sm:w-[240px]">
+                  <PieChart width={240} height={240} className="absolute left-1/2 top-1/2 h-[224px] w-[224px] -translate-x-1/2 -translate-y-1/2 sm:h-[240px] sm:w-[240px]">
+                    <Pie
+                      data={chartRows}
+                      dataKey="value"
+                      nameKey="category_name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={76}
+                      outerRadius={112}
+                      startAngle={90}
+                      endAngle={-270}
+                      paddingAngle={0}
+                      isAnimationActive={false}
+                      stroke="none"
+                    >
+                      {chartRows.map((item) => <Cell key={item.category_id} fill={item.color} />)}
+                    </Pie>
+                  </PieChart>
+                  <div className="pointer-events-none absolute inset-0 grid place-items-center">
+                    <div className="text-center">
+                      <p className="text-base font-medium text-[#64748b]">Total</p>
+                      <p className="mt-1 text-xl font-bold text-[#0f172a] number-align">{chartTotal}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  {chartRows.map((item) => (
+                    <div key={item.category_id} className="flex items-center justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+                        <span className="truncate text-sm text-[#64748b]">{item.category_name}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-[#0f172a]">{item.value.toFixed(0)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="grid min-h-[304px] place-items-center rounded-2xl bg-[#f7f9fb] px-6 text-center">
+                <div>
+                  <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-100 text-[#007a50]">
+                    <PieChartIcon size={24} />
+                  </span>
+                  <div className="mt-3 text-sm font-semibold text-[#0f172a]">Belum ada data pengeluaran.</div>
+                  <p className="mt-1 text-sm leading-5 text-[#64748b]">Trend akan muncul setelah transaksi pengeluaran dicatat.</p>
+                  <div className="mt-4 text-base font-bold text-[#0f172a] number-align">{chartTotal}</div>
                 </div>
               </div>
-            </div>
-            <div className="mt-5 space-y-3">
-              {chartRows.map((item) => (
-                <div key={item.category_id} className="flex items-center justify-between gap-4">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="truncate text-sm text-[#64748b]">{item.category_name}</span>
-                  </div>
-                  <span className="text-sm font-semibold text-[#0f172a]">{item.value.toFixed(0)}%</span>
-                </div>
-              ))}
-            </div>
+            )}
           </Card>
 
           <Card className="p-6 lg:col-span-7">
