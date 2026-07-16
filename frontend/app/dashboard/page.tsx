@@ -8,6 +8,7 @@ import { Cell, Pie, PieChart } from "recharts";
 import { AccountSelector } from "@/components/account/account-selector";
 import { AppShell } from "@/components/app-shell";
 import { Card } from "@/components/ui/card";
+import { getStoredUser } from "@/services/api/client";
 import { endpoints } from "@/services/api/easysaving";
 import { useActiveAccountId } from "@/hooks/use-active-account";
 import { formatIDR, today } from "@/lib/utils";
@@ -105,6 +106,12 @@ function AccountList({ accounts }: { accounts: Account[] }) {
 export default function DashboardPage() {
   const [date, setDate] = useState("");
   const { accountId, setAccountId } = useActiveAccountId();
+  const { data: user } = useQuery({
+    queryKey: ["profile"],
+    queryFn: endpoints.profile,
+    initialData: getStoredUser,
+    staleTime: 1000 * 60 * 5
+  });
   const { data: accounts = [] } = useQuery({ queryKey: ["accounts"], queryFn: endpoints.accounts });
   const transactionQuery = useMemo(() => {
     const params = new URLSearchParams({ limit: "3" });
@@ -124,6 +131,7 @@ export default function DashboardPage() {
   const recent = transactions;
   const totalExpense = Number(data?.total_expense ?? 0);
   const chartTotal = totalExpense > 0 ? formatIDR(data?.total_expense ?? 0) : "Rp 1.2M";
+  const greetingName = user?.name?.trim() || "EasySaving User";
 
   useEffect(() => {
     setDate(today());
@@ -139,7 +147,7 @@ export default function DashboardPage() {
     <AppShell>
       <section className="space-y-8">
         <div>
-          <h1 className="text-2xl font-semibold leading-8 text-[#0f172a]">Halo, Shandy</h1>
+          <h1 className="text-2xl font-semibold leading-8 text-[#0f172a]">Halo, {greetingName}</h1>
           <p className="mt-1 text-sm leading-5 text-[#64748b]">Here is your financial summary today.</p>
         </div>
 

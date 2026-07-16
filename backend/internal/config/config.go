@@ -14,6 +14,7 @@ type Config struct {
 	JWTSecret       string
 	JWTExpiresHours int
 	FrontendOrigin  string
+	APILogPath      string
 	SMTPHost        string
 	SMTPPort        string
 	SMTPUser        string
@@ -33,6 +34,7 @@ func Load() Config {
 		JWTSecret:       getenv("JWT_SECRET", "dev-secret"),
 		JWTExpiresHours: hours,
 		FrontendOrigin:  getenv("FRONTEND_ORIGIN", "http://localhost:3000"),
+		APILogPath:      getenv("API_LOG_PATH", "logs/api.log"),
 		SMTPHost:        getenv("SMTP_HOST", ""),
 		SMTPPort:        getenv("SMTP_PORT", "587"),
 		SMTPUser:        getenv("SMTP_USER", ""),

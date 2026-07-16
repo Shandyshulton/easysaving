@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-contrib/cors"
@@ -11,6 +13,7 @@ import (
 
 	"easysaving/backend/internal/config"
 	"easysaving/backend/internal/delivery/http/handler"
+	httpmiddleware "easysaving/backend/internal/delivery/http/middleware"
 	"easysaving/backend/internal/delivery/http/route"
 	"easysaving/backend/internal/pkg/email"
 	jwtpkg "easysaving/backend/internal/pkg/jwt"
@@ -57,7 +60,18 @@ func main() {
 	transactionUC := transactionusecase.New(transactionRepo, accountRepo, categoryRepo)
 	reportUC := reportusecase.New(transactionRepo, accountRepo)
 
-	r := gin.Default()
+	if err := os.MkdirAll(filepath.Dir(cfg.APILogPath), 0755); err != nil {
+		log.Fatal(err)
+	}
+	apiLogFile, err := os.OpenFile(cfg.APILogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer apiLogFile.Close()
+
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(httpmiddleware.RequestLogger(apiLogFile))
 	r.Use(cors.New(cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
