@@ -14,6 +14,7 @@ type Handlers struct {
 	Categories   *handler.CategoryHandler
 	Transactions *handler.TransactionHandler
 	Reports      *handler.ReportHandler
+	Scheduled    *handler.ScheduledTransactionHandler
 }
 
 func Register(r *gin.Engine, h Handlers, jwt jwtpkg.Service) {
@@ -41,4 +42,17 @@ func Register(r *gin.Engine, h Handlers, jwt jwtpkg.Service) {
 	protected.DELETE("/transactions/:id", h.Transactions.Delete)
 	protected.GET("/reports/summary", h.Reports.Summary)
 	protected.GET("/dashboard/summary", h.Reports.Summary)
+
+	// Scheduled transactions. Every route requires a valid token, including the
+	// manual scheduler trigger, which only processes the caller's own schedules.
+	protected.GET("/scheduled", h.Scheduled.List)
+	protected.POST("/scheduled", h.Scheduled.Create)
+	protected.POST("/scheduled/preview", h.Scheduled.Preview)
+	protected.POST("/scheduled/run", h.Scheduled.Run)
+	protected.GET("/scheduled/:id", h.Scheduled.Get)
+	protected.PUT("/scheduled/:id", h.Scheduled.Update)
+	protected.DELETE("/scheduled/:id", h.Scheduled.Delete)
+	protected.PATCH("/scheduled/:id/active", h.Scheduled.Toggle)
+	protected.POST("/scheduled/:id/pay", h.Scheduled.MarkPaid)
+	protected.POST("/scheduled/:id/skip", h.Scheduled.SkipPeriod)
 }

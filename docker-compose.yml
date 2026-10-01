@@ -7,7 +7,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-easysaving}
     ports:
-      - "5432:5432"
+      # Host 55432 -> container 5432. Port host unik dipilih agar tidak bentrok
+      # dengan Postgres/relay lain (mis. WSL) di 5432/5433. Container internal tetap 5432.
+      - "55432:5432"
     volumes:
       - easysaving_pg:/var/lib/postgresql/data
     healthcheck:

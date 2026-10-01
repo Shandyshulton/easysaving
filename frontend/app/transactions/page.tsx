@@ -9,7 +9,7 @@ import { CustomDropdown } from "@/components/ui/custom-dropdown";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ActionFeedback, useActionFeedback } from "@/components/ui/action-feedback";
 import { AccountSelector } from "@/components/account/account-selector";
-import { TransactionRow } from "@/components/transaction/transaction-row";
+import { TransactionRow, TransactionTableRow } from "@/components/transaction/transaction-row";
 import { SelectionBar } from "@/components/transaction/selection-bar";
 import { endpoints } from "@/services/api/easysaving";
 import { useActiveAccountId } from "@/hooks/use-active-account";
@@ -94,8 +94,8 @@ export default function TransactionsPage() {
   return (
     <AppShell>
       <ActionFeedback feedback={feedback.feedback} onClose={feedback.clear} />
-      <div className="mx-auto max-w-2xl">
-        <h1 className="mb-5 text-[22px] font-semibold leading-8 text-[#0f172a] sm:text-[24px]">Transaction History</h1>
+      <div className="mx-auto max-w-4xl">
+        <h1 className="mb-5 text-xl font-semibold text-[var(--text-primary)] sm:text-2xl">Transaction History</h1>
 
         <div className="mb-4">
           <AccountSelector
@@ -109,9 +109,9 @@ export default function TransactionsPage() {
         </div>
 
         <div className="relative mb-3">
-          <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#64748b]" size={20} />
+          <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={20} />
           <Input
-            className="h-12 rounded-full border-gray-200 bg-white pl-12 text-base shadow-[0_2px_10px_rgba(15,23,42,0.04)]"
+            className="h-12 rounded-full border-[var(--border)] bg-white pl-12 text-base"
             placeholder="Cari transaksi..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -120,17 +120,17 @@ export default function TransactionsPage() {
 
         <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
           <label className="relative shrink-0">
-            <CalendarDays className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[#64748b]" size={17} />
+            <CalendarDays className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[var(--text-muted)]" size={17} />
             <Input
               type="date"
-              className="h-11 w-[164px] rounded-full border-gray-200 bg-white pl-9 pr-3 text-sm shadow-[0_2px_10px_rgba(15,23,42,0.04)]"
+              className="h-11 w-[164px] rounded-full border-[var(--border)] bg-white pl-9 pr-3 text-sm"
               value={filter.date}
               onChange={(event) => setFilter((current) => ({ ...current, date: event.target.value }))}
             />
           </label>
 
           <div className="relative w-[136px] shrink-0">
-            <SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[#64748b]" size={17} />
+            <SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[var(--text-muted)]" size={17} />
             <CustomDropdown
               value={filter.type}
               onChange={(value) => setFilter((current) => ({ ...current, type: value }))}
@@ -140,31 +140,31 @@ export default function TransactionsPage() {
                 { value: "income", label: "Income" },
                 { value: "expense", label: "Expense" }
               ]}
-              buttonClassName="h-11 rounded-full border-gray-200 pl-9 pr-2 text-sm shadow-[0_2px_10px_rgba(15,23,42,0.04)]"
+              buttonClassName="h-11 rounded-full border-[var(--border)] pl-9 pr-2 text-sm"
             />
           </div>
 
           <div className="relative w-[164px] shrink-0">
-            <Filter className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[#64748b]" size={17} />
+            <Filter className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[var(--text-muted)]" size={17} />
             <CustomDropdown
               value={filter.category_id}
               onChange={(value) => setFilter((current) => ({ ...current, category_id: value }))}
               placeholder="Category"
               options={[{ value: "", label: "Semua Kategori" }, ...categories.map((item) => ({ value: item.id, label: item.name }))]}
-              buttonClassName="h-11 rounded-full border-gray-200 pl-9 pr-2 text-sm shadow-[0_2px_10px_rgba(15,23,42,0.04)]"
+              buttonClassName="h-11 rounded-full border-[var(--border)] pl-9 pr-2 text-sm"
             />
           </div>
 
           {hasActiveFilters && (
             <>
-              <div className="h-6 w-px shrink-0 bg-gray-200" />
+              <div className="h-6 w-px shrink-0 bg-[var(--border)]" />
               <button
                 type="button"
                 onClick={() => {
                   setSearch("");
                   setFilter(EMPTY_FILTER);
                 }}
-                className="inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-2 text-sm font-bold text-[#006c49] transition hover:bg-emerald-50"
+                className="inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-2 text-sm font-semibold text-[var(--primary-strong)] transition hover:bg-[var(--primary-soft)]"
               >
                 <X size={15} />
                 Clear All
@@ -183,31 +183,32 @@ export default function TransactionsPage() {
         />
 
         {bulkDelete.isError && (
-          <div className="mb-4 rounded-xl border border-[#ffb3b0] bg-[#ffdad8]/50 px-4 py-3 text-sm text-[#a01616]">
+          <div className="mb-4 rounded-[var(--radius)] border border-[var(--expense)]/30 bg-[var(--expense-soft)] px-4 py-3 text-sm text-[var(--expense)]">
             {(bulkDelete.error as Error).message}
           </div>
         )}
 
-        <div className="space-y-8">
-          {transactionsLoading && (
-            <div className="space-y-3">
-              {[0, 1, 2].map((index) => (
-                <div key={index} className="h-[76px] animate-pulse rounded-xl bg-white shadow-[0_4px_20px_rgba(15,23,42,0.035)]" />
-              ))}
-            </div>
-          )}
+        {transactionsLoading && (
+          <div className="space-y-3">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className="h-[64px] animate-pulse rounded-[var(--radius)] bg-white" />
+            ))}
+          </div>
+        )}
 
-          {!transactionsLoading &&
-            groups.map((group) => (
-              <section key={group.label}>
-                <div className="mb-3 flex items-center justify-between border-b border-gray-200 pb-2">
-                  <h2 className="text-sm font-bold tracking-wide text-[#64748b]">{group.label}</h2>
-                  <p className={`text-sm number-align ${group.total >= 0 ? "text-[#007a50]" : "text-[#64748b]"}`}>
+        {/* Mobile: clean list rows grouped by date */}
+        {!transactionsLoading && groups.length > 0 && (
+          <div className="space-y-6 lg:hidden">
+            {groups.map((group) => (
+              <section key={group.label} className="panel px-3 py-2 sm:px-4">
+                <div className="flex items-center justify-between border-b border-[var(--border)] py-2">
+                  <h2 className="section-heading">{group.label}</h2>
+                  <p className={`number-align text-sm ${group.total >= 0 ? "text-[var(--income)]" : "text-[var(--text-secondary)]"}`}>
                     {group.total >= 0 ? "+" : "-"}
                     {formatIDR(Math.abs(group.total))}
                   </p>
                 </div>
-                <div className="space-y-3">
+                <div className="list-divider">
                   {group.items.map((item) => (
                     <TransactionRow
                       key={item.id}
@@ -221,14 +222,54 @@ export default function TransactionsPage() {
                 </div>
               </section>
             ))}
+          </div>
+        )}
 
-          {!transactionsLoading && groups.length === 0 && (
-            <div className="rounded-3xl bg-white p-8 text-center shadow-[0_4px_20px_rgba(15,23,42,0.04)]">
-              <WalletCards className="mx-auto mb-3 text-[#64748b]" />
-              <p className="text-sm text-[#64748b]">Belum ada transaksi pada filter ini.</p>
-            </div>
-          )}
-        </div>
+        {/* Desktop: information-dense table */}
+        {!transactionsLoading && groups.length > 0 && (
+          <div className="hidden overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-white lg:block">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left">
+                  <th className="w-10 py-3 pl-3" />
+                  <th className="section-heading py-3 pr-4 font-bold">Date</th>
+                  <th className="section-heading py-3 pr-4 font-bold">Description</th>
+                  <th className="section-heading py-3 pr-4 font-bold">Category</th>
+                  <th className="section-heading py-3 pr-4 font-bold">Account</th>
+                  <th className="section-heading py-3 pr-3 text-right font-bold">Amount</th>
+                </tr>
+              </thead>
+              {groups.map((group) => (
+                <tbody key={group.label}>
+                  <tr className="border-b border-[var(--border)] bg-[var(--surface-muted)]">
+                    <td colSpan={5} className="py-2 pl-3 text-xs font-bold uppercase tracking-wide text-[var(--text-secondary)]">{group.label}</td>
+                    <td className={`number-align py-2 pr-3 text-right text-xs font-semibold ${group.total >= 0 ? "text-[var(--income)]" : "text-[var(--text-secondary)]"}`}>
+                      {group.total >= 0 ? "+" : "-"}
+                      {formatIDR(Math.abs(group.total))}
+                    </td>
+                  </tr>
+                  {group.items.map((item) => (
+                    <TransactionTableRow
+                      key={item.id}
+                      item={item}
+                      accounts={accounts}
+                      categories={categories}
+                      checked={selection.isSelected(item.id)}
+                      onToggle={selection.toggle}
+                    />
+                  ))}
+                </tbody>
+              ))}
+            </table>
+          </div>
+        )}
+
+        {!transactionsLoading && groups.length === 0 && (
+          <div className="panel p-8 text-center">
+            <WalletCards className="mx-auto mb-3 text-[var(--text-muted)]" />
+            <p className="text-sm text-[var(--text-secondary)]">Belum ada transaksi pada filter ini.</p>
+          </div>
+        )}
       </div>
 
       <ConfirmDialog

@@ -1,11 +1,17 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
+
+	// Embeds the IANA timezone database so Asia/Jakarta resolves even on minimal
+	// container images (e.g. Alpine) that ship without tzdata.
+	_ "time/tzdata"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -22,6 +28,7 @@ import (
 	authusecase "easysaving/backend/internal/usecase/auth"
 	categoryusecase "easysaving/backend/internal/usecase/category"
 	reportusecase "easysaving/backend/internal/usecase/report"
+	scheduledusecase "easysaving/backend/internal/usecase/scheduled"
 	transactionusecase "easysaving/backend/internal/usecase/transaction"
 )
 
@@ -45,6 +52,7 @@ func main() {
 	accountRepo := postgres.NewAccountRepository(db)
 	categoryRepo := postgres.NewCategoryRepository(db)
 	transactionRepo := postgres.NewTransactionRepository(db)
+	scheduledRepo := postgres.NewScheduledTransactionRepository(db)
 	mailer := email.NewSMTPService(email.Config{
 		AppEnv:   cfg.AppEnv,
 		Host:     cfg.SMTPHost,
@@ -59,6 +67,7 @@ func main() {
 	categoryUC := categoryusecase.New(categoryRepo)
 	transactionUC := transactionusecase.New(transactionRepo, accountRepo, categoryRepo)
 	reportUC := reportusecase.New(transactionRepo, accountRepo)
+	scheduledUC := scheduledusecase.New(scheduledRepo, transactionRepo, accountRepo, categoryRepo)
 
 	if err := os.MkdirAll(filepath.Dir(cfg.APILogPath), 0755); err != nil {
 		log.Fatal(err)
@@ -96,10 +105,43 @@ func main() {
 		Categories:   handler.NewCategoryHandler(categoryUC),
 		Transactions: handler.NewTransactionHandler(transactionUC),
 		Reports:      handler.NewReportHandler(reportUC),
+		Scheduled:    handler.NewScheduledTransactionHandler(scheduledUC),
 	}, jwt)
+
+	// Background scheduler: runs once shortly after boot, then every 6 hours.
+	// Processing is idempotent at the database level (unique index on
+	// scheduled_transaction_id + scheduled_due_date) and rows are claimed with
+	// SELECT ... FOR UPDATE SKIP LOCKED, so running several instances is safe.
+	startScheduleRunner(scheduledUC)
 
 	log.Printf("EasySaving API listening on :%s", cfg.HTTPPort)
 	if err := r.Run(":" + cfg.HTTPPort); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// startScheduleRunner ticks the scheduler in the background without blocking boot.
+func startScheduleRunner(scheduledUC *scheduledusecase.Usecase) {
+	const interval = 6 * time.Hour
+
+	run := func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
+		// An empty user id means "every user".
+		if _, err := scheduledUC.ProcessDue(ctx, ""); err != nil {
+			log.Printf("scheduled run failed: %v", err)
+		}
+	}
+
+	go func() {
+		// Small delay so the first run does not compete with startup work.
+		time.Sleep(10 * time.Second)
+		run()
+
+		ticker := time.NewTicker(interval)
+		defer ticker.Stop()
+		for range ticker.C {
+			run()
+		}
+	}()
 }

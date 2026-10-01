@@ -1,5 +1,33 @@
 import { api } from "@/services/api/client";
-import type { Account, AuthResponse, Category, LoginOTPResponse, Summary, Transaction, User } from "@/types/api";
+import type {
+  Account,
+  AuthResponse,
+  Category,
+  LoginOTPResponse,
+  ScheduledRunResult,
+  ScheduledTransaction,
+  SchedulePreview,
+  Summary,
+  Transaction,
+  User
+} from "@/types/api";
+
+/** Payload shared by create, update, and preview of a schedule. */
+export type ScheduledPayload = {
+  type: "income" | "expense";
+  name: string;
+  amount: string;
+  category_id: string;
+  account_id: string;
+  mode: "auto" | "remind";
+  frequency: "daily" | "weekly" | "monthly" | "yearly";
+  interval: number;
+  start_date: string;
+  end_date?: string;
+  remind_days_before?: number;
+  notes?: string;
+  is_active?: boolean;
+};
 
 export const endpoints = {
   register: (payload: { name: string; email: string; password: string }) =>
@@ -31,5 +59,23 @@ export const endpoints = {
     api<Transaction>(`/transactions/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteTransaction: (id: string) => api<{ deleted: boolean }>(`/transactions/${id}`, { method: "DELETE" }),
   summary: (period: string, date: string, accountId = "") =>
-    api<Summary>(`/dashboard/summary?period=${period}&date=${date}${accountId ? `&account_id=${accountId}` : ""}`)
+    api<Summary>(`/dashboard/summary?period=${period}&date=${date}${accountId ? `&account_id=${accountId}` : ""}`),
+
+  // --- Scheduled transactions -------------------------------------------
+  scheduled: (query = "") => api<ScheduledTransaction[]>(`/scheduled${query}`),
+  scheduledById: (id: string) => api<ScheduledTransaction>(`/scheduled/${id}`),
+  createScheduled: (payload: ScheduledPayload) =>
+    api<ScheduledTransaction>("/scheduled", { method: "POST", body: JSON.stringify(payload) }),
+  updateScheduled: (id: string, payload: ScheduledPayload) =>
+    api<ScheduledTransaction>(`/scheduled/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+  deleteScheduled: (id: string) => api<{ deleted: boolean }>(`/scheduled/${id}`, { method: "DELETE" }),
+  toggleScheduled: (id: string, isActive: boolean) =>
+    api<ScheduledTransaction>(`/scheduled/${id}/active`, { method: "PATCH", body: JSON.stringify({ is_active: isActive }) }),
+  previewScheduled: (payload: ScheduledPayload) =>
+    api<SchedulePreview>("/scheduled/preview", { method: "POST", body: JSON.stringify(payload) }),
+  payScheduled: (id: string, payload: { amount: string; transaction_date?: string; notes?: string }) =>
+    api<Transaction>(`/scheduled/${id}/pay`, { method: "POST", body: JSON.stringify(payload) }),
+  skipScheduled: (id: string) =>
+    api<ScheduledTransaction>(`/scheduled/${id}/skip`, { method: "POST" }),
+  runScheduled: () => api<ScheduledRunResult>("/scheduled/run", { method: "POST" })
 };

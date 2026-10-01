@@ -24,10 +24,10 @@ function categoryIcon(name: string) {
 
 function categoryTone(name: string) {
   const lower = name.toLowerCase();
-  if (lower.includes("transport")) return { bg: "bg-[#dae2fd]/55", text: "text-[#565e74]" };
-  if (lower.includes("belanja") || lower.includes("shop")) return { bg: "bg-[#ffdad8]", text: "text-[#a83639]" };
-  if (lower.includes("lain")) return { bg: "bg-[#eceef0]", text: "text-[#64748b]" };
-  return { bg: "bg-[#8B4513]/10", text: "text-[#8B4513]" };
+  if (lower.includes("transport")) return { bg: "bg-[var(--surface-muted)]", text: "text-[var(--text-secondary)]" };
+  if (lower.includes("belanja") || lower.includes("shop")) return { bg: "bg-[var(--expense-soft)]", text: "text-[var(--expense)]" };
+  if (lower.includes("lain")) return { bg: "bg-[var(--surface-muted)]", text: "text-[var(--text-secondary)]" };
+  return { bg: "bg-[var(--income-soft)]", text: "text-[var(--primary-strong)]" };
 }
 
 function monthLabel(date: Date) {
@@ -291,21 +291,21 @@ export default function ReportsPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-8">
+      <div className="mx-auto flex max-w-[1100px] flex-col gap-6">
         <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="mb-1 text-2xl font-semibold leading-8 text-[#006c49]">Category Trends</h1>
-            <p className="text-sm leading-5 text-[#64748B]">Track where your money goes.</p>
+            <h1 className="text-xl font-semibold text-[var(--text-primary)] lg:text-2xl">Category Trends</h1>
+            <p className="mt-1 text-sm text-[var(--text-secondary)]">Lihat ke mana uang Anda mengalir.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex w-fit rounded-lg bg-[#f2f4f6] p-1 shadow-sm">
+            <div className="flex w-fit rounded-[var(--radius)] bg-[var(--surface-muted)] p-1">
               {(["daily", "weekly", "monthly"] as const).map((item) => (
                 <button
                   key={item}
                   type="button"
                   onClick={() => setPeriod(item)}
-                  className={`rounded-md px-4 py-3 text-sm font-semibold leading-5 transition ${
-                    period === item ? "bg-white text-[#006c49] shadow-sm" : "text-[#3c4a42] hover:bg-[#eceef0]"
+                  className={`rounded-[var(--radius-sm)] px-4 py-2.5 text-sm font-semibold transition ${
+                    period === item ? "bg-white text-[var(--primary-strong)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--primary-strong)]"
                   }`}
                 >
                   {item === "daily" ? "Daily" : item === "weekly" ? "Weekly" : "Monthly"}
@@ -316,7 +316,7 @@ export default function ReportsPage() {
               type="button"
               onClick={() => downloadReportPdf(data, period, date)}
               disabled={!data}
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[#b7e4d1] bg-white px-4 py-3 text-sm font-semibold text-[#006c49] shadow-sm transition hover:bg-[#e8f7f0] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius)] border border-[var(--primary-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--primary-strong)] transition hover:bg-[var(--primary-soft)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Download size={17} />
               Download PDF
@@ -324,8 +324,8 @@ export default function ReportsPage() {
           </div>
         </section>
 
-        <section className="rounded-[20px] border border-[#e0e3e5] bg-white p-4 shadow-[0_4px_20px_rgba(15,23,42,0.04)]">
-          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#64748B]">
+        <section className="panel p-4">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--text-secondary)]">
             <CalendarDays size={17} />
             Bulan laporan
           </div>
@@ -341,15 +341,15 @@ export default function ReportsPage() {
                   }}
                   className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
                     period === "monthly" && selectedMonth === month.monthValue
-                      ? "bg-[#006c49] text-white shadow-sm"
-                      : "bg-[#f2f4f6] text-[#3c4a42] hover:bg-[#e8f7f0] hover:text-[#006c49]"
+                      ? "bg-[var(--primary-strong)] text-white"
+                      : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:text-[var(--primary-strong)]"
                   }`}
                 >
                   {month.label}
                 </button>
               ))}
             </div>
-            <label className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[#64748B]">
+            <label className="flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--text-secondary)]">
               Bulan lain
               <input
                 type="month"
@@ -359,79 +359,79 @@ export default function ReportsPage() {
                   setPeriod("monthly");
                   setDate(`${event.target.value}-01`);
                 }}
-                className="h-10 rounded-lg border border-[#d1d5db] bg-white px-3 text-sm text-[#191c1e] outline-none transition focus:border-[#006c49] focus:ring-1 focus:ring-[#006c49]"
+                className="h-10 rounded-[var(--radius-sm)] border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--primary-strong)] focus:ring-1 focus:ring-[var(--primary-strong)]"
               />
             </label>
           </div>
         </section>
 
-        <section className="rounded-[24px] bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-[#64748B]">Total {period} Expense</h2>
-            <span className="grid h-12 w-12 place-items-center rounded-full bg-emerald-100 text-[#006c49]">
-              <TrendingUp size={25} />
-            </span>
-          </div>
-          <p className="text-[32px] font-bold leading-10 text-[#191c1e] number-align md:text-[40px] md:leading-[48px]">
-            {formatIDR(totalExpense)}
-          </p>
-        </section>
+        {/* Total expense + trend chart side by side on desktop */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <section className="panel p-5 sm:p-6 lg:col-span-4">
+            <div className="flex items-center justify-between">
+              <h2 className="section-heading">Total {period} Expense</h2>
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--income-soft)] text-[var(--primary-strong)]">
+                <TrendingUp size={20} />
+              </span>
+            </div>
+            <p className="number-align mt-3 text-[30px] font-bold leading-tight text-[var(--text-primary)] md:text-[36px]">
+              {formatIDR(totalExpense)}
+            </p>
+          </section>
 
-        <section className="relative overflow-hidden rounded-[24px] border border-[#e0e3e5] bg-white/80 p-6 shadow-[0_4px_20px_rgba(15,23,42,0.05)] backdrop-blur-md">
-          <div className="absolute -right-20 -top-20 -z-10 h-64 w-64 rounded-full bg-[#006c49]/5 blur-3xl" />
-          <h2 className="mb-6 text-xl font-semibold leading-7 text-[#191c1e]">Spending Trends</h2>
-          <div className="h-56 min-h-[224px] min-w-0">
-            {trend.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                <BarChart data={trend} margin={{ top: 28, right: 4, left: -28, bottom: 0 }}>
-                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: "#64748B", fontSize: 12, fontWeight: 600 }} />
-                  <YAxis hide domain={[0, maxTrend]} />
-                  <Tooltip cursor={{ fill: "rgba(0,108,73,0.04)" }} formatter={(value) => formatIDR(String(value))} />
-                  <Bar dataKey="expense" fill="#006c49" radius={[4, 4, 0, 0]} maxBarSize={56} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="grid h-full place-items-center rounded-2xl bg-[#f7f9fb] text-center text-sm text-[#64748B]">
-                Belum ada data report untuk periode ini.
-              </div>
-            )}
-          </div>
-        </section>
+          <section className="panel p-5 sm:p-6 lg:col-span-8">
+            <h2 className="mb-4 text-base font-semibold text-[var(--text-primary)]">Spending Trends</h2>
+            <div className="h-52 min-h-[208px] min-w-0">
+              {trend.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                  <BarChart data={trend} margin={{ top: 16, right: 4, left: -28, bottom: 0 }}>
+                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: "#5b6b7b", fontSize: 12, fontWeight: 600 }} />
+                    <YAxis hide domain={[0, maxTrend]} />
+                    <Tooltip cursor={{ fill: "rgba(11,138,91,0.06)" }} formatter={(value) => formatIDR(String(value))} />
+                    <Bar dataKey="expense" fill="#0b8a5b" radius={[4, 4, 0, 0]} maxBarSize={48} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="grid h-full place-items-center rounded-[var(--radius)] bg-[var(--surface-muted)] text-center text-sm text-[var(--text-secondary)]">
+                  Belum ada data report untuk periode ini.
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
 
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <h2 className="text-2xl font-semibold leading-8 text-[#191c1e] md:col-span-2">Top Categories</h2>
-          {categories.length === 0 && (
-            <div className="rounded-[24px] bg-white p-6 text-center text-sm text-[#64748B] shadow-[0_4px_20px_rgba(15,23,42,0.05)] md:col-span-2">
+        <section>
+          <h2 className="mb-4 text-base font-semibold text-[var(--text-primary)]">Top Categories</h2>
+          {categories.length === 0 ? (
+            <div className="panel p-6 text-center text-sm text-[var(--text-secondary)]">
               Belum ada kategori pengeluaran dari database.
             </div>
-          )}
-          {categories.slice(0, 4).map((item, index) => {
-            const Icon = categoryIcon(item.category_name);
-            const tone = categoryTone(item.category_name);
-            const percentage = Math.min(Math.max(Number(item.percentage) || 0, 0), 100);
-            return (
-              <div
-                key={item.category_id}
-                className={`flex items-center gap-4 rounded-[24px] bg-white p-6 shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition hover:shadow-md ${
-                  index === 3 ? "border border-dashed border-[#e0e3e5] opacity-80" : ""
-                }`}
-              >
-                <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${tone.bg} ${tone.text}`}>
-                  <Icon size={23} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold leading-5 text-[#191c1e]">{item.category_name}</p>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#f2f4f6]">
-                    <div className="h-full rounded-full" style={{ width: `${percentage}%`, backgroundColor: item.color || "#006c49" }} />
+          ) : (
+            <div className="panel divide-y divide-[var(--border)] px-4 sm:px-5">
+              {categories.slice(0, 4).map((item) => {
+                const Icon = categoryIcon(item.category_name);
+                const tone = categoryTone(item.category_name);
+                const percentage = Math.min(Math.max(Number(item.percentage) || 0, 0), 100);
+                return (
+                  <div key={item.category_id} className="flex items-center gap-4 py-4">
+                    <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${tone.bg} ${tone.text}`}>
+                      <Icon size={20} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{item.category_name}</p>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+                        <div className="h-full rounded-full" style={{ width: `${percentage}%`, backgroundColor: item.color || "var(--primary)" }} />
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="number-align text-sm font-semibold text-[var(--text-primary)]">{formatIDR(item.total)}</p>
+                      <p className="text-xs text-[var(--text-secondary)]">{percentage.toFixed(0)}%</p>
+                    </div>
                   </div>
-                </div>
-                <div className="shrink-0 text-right">
-                  <p className="text-sm font-semibold leading-5 text-[#191c1e] number-align">{formatIDR(item.total)}</p>
-                  <p className="text-xs leading-4 text-[#64748B]">{percentage.toFixed(0)}%</p>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          )}
         </section>
       </div>
     </AppShell>

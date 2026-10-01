@@ -10,7 +10,7 @@ import { z } from "zod";
 import { ArrowLeft, Save, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomDropdown } from "@/components/ui/custom-dropdown";
-import { NumericInput } from "@/components/ui/numeric-input";
+import { AmountField } from "@/components/ui/amount-field";
 import { ActionFeedback, setActionFeedbackFlash, useActionFeedback } from "@/components/ui/action-feedback";
 import { endpoints } from "@/services/api/easysaving";
 import { accountCategoryOptions } from "@/lib/account-options";
@@ -79,15 +79,12 @@ export default function EditAccountPage() {
         <main className="mx-auto flex w-full max-w-[600px] flex-col px-5 pb-8 pt-24">
           <section className="flex flex-col items-center justify-center py-8">
             <span className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#64748B]">Saldo Saat Ini</span>
-            <div className="group flex w-full items-baseline justify-center">
-              <span className="mr-2 text-[46px] font-black leading-[54px] text-[#006c49] transition group-focus-within:text-[#00543a]">Rp</span>
-              <NumericInput
-                placeholder="0"
-                className="m-0 w-full max-w-[270px] border-none bg-transparent p-0 text-left text-[46px] font-black leading-[54px] tracking-normal text-[#006c49] outline-none placeholder:text-[#d8dadc] focus:ring-0"
-                value={balance}
-                onValueChange={(value) => form.setValue("current_balance", value, { shouldDirty: true, shouldValidate: true })}
-              />
-            </div>
+            <AmountField
+              value={balance}
+              onValueChange={(value) => form.setValue("current_balance", value, { shouldDirty: true, shouldValidate: true })}
+              ariaLabel="Saldo saat ini dalam Rupiah"
+              className="text-[var(--primary-strong)]"
+            />
             <div className="mt-3 h-0.5 w-32 rounded-full bg-[#e6e8ea]" />
           </section>
 

@@ -9,7 +9,7 @@ import { z } from "zod";
 import { ArrowLeft, Save, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomDropdown } from "@/components/ui/custom-dropdown";
-import { NumericInput } from "@/components/ui/numeric-input";
+import { AmountField } from "@/components/ui/amount-field";
 import { ActionFeedback, setActionFeedbackFlash, useActionFeedback } from "@/components/ui/action-feedback";
 import { endpoints } from "@/services/api/easysaving";
 import { accountSchema } from "@/schemas/forms";
@@ -54,15 +54,12 @@ export default function AddAccountPage() {
         <div className="mx-auto flex w-full max-w-[600px] flex-col px-5 pb-8 pt-28">
           <section className="flex flex-col items-center justify-center pb-11 pt-7">
             <span className="mb-5 text-xs font-bold uppercase tracking-[0.26em] text-[#6b7788]">Saldo Awal</span>
-            <div className="group flex min-h-[88px] w-full items-center justify-center">
-              <span className="mr-3 block text-[60px] font-black leading-none text-[#006c49] transition group-focus-within:text-[#00543a] sm:text-[68px]">Rp</span>
-              <NumericInput
-                placeholder="0"
-                className="m-0 h-[88px] min-w-0 max-w-[420px] flex-1 border-none bg-transparent p-0 text-left text-[60px] font-bold leading-none tracking-normal text-[#006c49] caret-[#00543a] outline-none placeholder:text-[#cbd1d6] focus:ring-0 sm:text-[68px]"
-                value={balance}
-                onValueChange={(value) => form.setValue("initial_balance", value, { shouldDirty: true, shouldValidate: true })}
-              />
-            </div>
+            <AmountField
+              value={balance}
+              onValueChange={(value) => form.setValue("initial_balance", value, { shouldDirty: true, shouldValidate: true })}
+              ariaLabel="Saldo awal dalam Rupiah"
+              className="text-[var(--primary-strong)]"
+            />
             <div className="mt-5 h-0.5 w-36 rounded-full bg-[#dde3e6]" />
           </section>
 

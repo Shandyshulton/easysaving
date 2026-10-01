@@ -6,7 +6,8 @@ import { QueryProvider } from "@/components/query-provider";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap"
+  display: "swap",
+  axes: ["opsz"]
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";

@@ -1,15 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f9fb;
+  /* Surfaces & background */
+  --background: #f6f8fa;
   --surface: #ffffff;
-  --surface-dim: #f3f4f6;
-  --primary: #10b981;
-  --primary-dark: #006c49;
-  --secondary: #ef4444;
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --outline: #d1d5db;
+  --surface-muted: #f1f5f4;
+  --surface-subtle: #f7faf9;
+
+  /* Brand / primary (single source of truth) */
+  --primary: #0b8a5b;
+  --primary-strong: #006c49;
+  --primary-soft: #e6f5ee;
+  --primary-border: #cbe8db;
+
+  /* Semantic financial colors */
+  --income: #0b8a5b;
+  --income-soft: #e6f5ee;
+  --expense: #c0392f;
+  --expense-soft: #fdecea;
+  --success: #0b8a5b;
+  --warning: #b7791f;
+  --warning-soft: #fdf3e2;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #5b6b7b;
+  --text-muted: #8794a1;
+
+  /* Lines & radius */
+  --border: #e6ebef;
+  --border-strong: #d5dde3;
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 18px;
 }
 
 * {
@@ -34,8 +57,58 @@ textarea {
 
 .soft-card {
   background: var(--surface);
-  border-radius: 24px;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* --- Design system utilities ------------------------------------------- */
+
+/* Panel: a light grouping container. Prefer over heavy shadowed cards. */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* Subtle surface used to group content without a hard border. */
+.surface-muted {
+  background: var(--surface-muted);
+  border-radius: var(--radius);
+}
+
+/* Section heading: small uppercase label to introduce a block. */
+.section-heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Divider between list rows. */
+.list-divider > * + * {
+  border-top: 1px solid var(--border);
+}
+
+/* A single tappable list row (transactions, accounts, etc). */
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  transition: background-color 0.15s ease;
+}
+
+.hairline {
+  border-bottom: 1px solid var(--border);
+}
+
+/* Semantic text helpers */
+.text-income {
+  color: var(--income);
+}
+.text-expense {
+  color: var(--expense);
 }
 
 .number-align {
@@ -55,6 +128,72 @@ textarea {
   font-feature-settings: "tnum", "cv02", "cv03", "cv04", "cv11";
   font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: -0.02em;
+}
+
+/* --- Balanced amount field (Rp prefix + editable number) --------------- */
+.amount-field {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.2em;
+  max-width: 100%;
+  font-size: clamp(30px, 8.5vw, 40px);
+  line-height: 1.1;
+  font-weight: 600;
+  font-family: var(--font-inter), "SF Pro Display", "Segoe UI", sans-serif;
+  letter-spacing: -0.015em;
+  /* Color intentionally omitted so pages can set it (expense/income/primary)
+     via a utility class without being overridden by this rule. */
+}
+
+/* Prefix "Rp": a small quiet label that inherits the amount color
+   (red for expense, green for income, primary on balance pages). */
+.amount-prefix {
+  flex: 0 0 auto;
+  font-size: 0.5em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: inherit;
+  opacity: 0.7;
+  transform: translateY(-0.05em);
+}
+
+/* Width is decided ONLY by the mirror; the input is overlaid on top of it
+   (position:absolute) so it contributes zero width. This keeps the whole
+   "Rp + number" group as wide as its text and centered by the wrapper. */
+.amount-value {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  min-width: 0.6em;
+}
+.amount-value > .mirror {
+  display: block;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: pre;
+  font: inherit;
+  letter-spacing: inherit;
+  font-variant-numeric: lining-nums;
+  padding: 0 0.04em;
+}
+.amount-value > input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0.04em;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  font-variant-numeric: lining-nums;
+  text-align: left;
 }
 
 .pb-safe {

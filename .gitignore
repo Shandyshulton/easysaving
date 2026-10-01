@@ -45,3 +45,9 @@ Thumbs.db
 
 # Local Docker overrides
 docker-compose.override.yml
+
+# Working notes / scratch docs (not for repo)
+revamp.md
+transaksi.md
+docs-amount-field-solution.md
+docs-rp-amount-typography-issue.md

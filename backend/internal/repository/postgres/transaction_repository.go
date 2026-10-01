@@ -9,6 +9,7 @@ import (
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type TransactionRepository struct{ db *gorm.DB }
@@ -23,6 +24,17 @@ func (r *TransactionRepository) WithTx(ctx context.Context, fn func(tx *gorm.DB)
 
 func (r *TransactionRepository) CreateTx(ctx context.Context, db *gorm.DB, item *domaintransaction.Transaction) error {
 	return db.WithContext(ctx).Create(item).Error
+}
+
+// CreateIfNotExistsTx relies on the uq_transactions_schedule_due unique index to
+// swallow duplicate occurrences. It returns false when the row already existed so
+// the caller knows not to touch the account balance a second time.
+func (r *TransactionRepository) CreateIfNotExistsTx(ctx context.Context, db *gorm.DB, item *domaintransaction.Transaction) (bool, error) {
+	result := db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(item)
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return result.RowsAffected > 0, nil
 }
 
 func (r *TransactionRepository) UpdateTx(ctx context.Context, db *gorm.DB, item *domaintransaction.Transaction) error {

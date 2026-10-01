@@ -10,6 +10,7 @@ import (
 	domaintransaction "easysaving/backend/internal/domain/transaction"
 	"easysaving/backend/internal/dto"
 	"easysaving/backend/internal/pkg/daterange"
+	"easysaving/backend/internal/pkg/dberr"
 	"easysaving/backend/internal/pkg/money"
 
 	"github.com/google/uuid"
@@ -37,7 +38,7 @@ func (u *Usecase) Create(ctx context.Context, userID string, req dto.Transaction
 		}
 		return u.accounts.AdjustBalance(ctx, tx, item.AccountID, userID, item.BalanceDelta())
 	})
-	return item, err
+	return item, dberr.Translate(err)
 }
 
 func (u *Usecase) Update(ctx context.Context, userID, id string, req dto.TransactionRequest) (*domaintransaction.Transaction, error) {
@@ -59,7 +60,9 @@ func (u *Usecase) Update(ctx context.Context, userID, id string, req dto.Transac
 		}
 		return u.accounts.AdjustBalance(ctx, tx, next.AccountID, userID, next.BalanceDelta())
 	})
-	return next, err
+	// A legacy row whose amount is <= 0 trips chk_transactions_amount_positive the
+	// moment it is updated; translate that into an actionable message.
+	return next, dberr.Translate(err)
 }
 
 func (u *Usecase) Delete(ctx context.Context, userID, id string) error {

@@ -14,6 +14,7 @@ type TransactionRowProps = {
   onToggle: (id: string, checked: boolean) => void;
 };
 
+/** Compact list row for mobile: no per-item card, divider-based grouping. */
 function TransactionRowBase({ item, accounts, categories, checked, onToggle }: TransactionRowProps) {
   const cat = categoryName(categories, item.category_id, item.type);
   const account = accountName(accounts, item.account_id);
@@ -24,10 +25,9 @@ function TransactionRowBase({ item, accounts, categories, checked, onToggle }: T
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl border bg-white p-4 shadow-[0_4px_20px_rgba(15,23,42,0.035)] transition-colors sm:p-5",
-        checked ? "border-[#a7d9c4] bg-[#f2fbf7]" : "border-transparent"
+        "flex items-center gap-3 rounded-[var(--radius)] px-2 py-3 transition-colors",
+        checked && "bg-[var(--primary-soft)]"
       )}
-      style={{ animation: "row-pop-in 0.15s ease-out" }}
     >
       <Checkbox
         checked={checked}
@@ -37,27 +37,60 @@ function TransactionRowBase({ item, accounts, categories, checked, onToggle }: T
 
       <div
         className={cn(
-          "grid h-12 w-12 shrink-0 place-items-center rounded-xl",
-          isIncome ? "bg-emerald-100 text-[#007a50]" : "bg-[#ffdad8]/60 text-[#a83639]"
+          "grid h-10 w-10 shrink-0 place-items-center rounded-full",
+          isIncome ? "bg-[var(--income-soft)] text-[var(--income)]" : "bg-[var(--expense-soft)] text-[var(--expense)]"
         )}
       >
-        <Icon size={22} />
+        <Icon size={20} />
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-[#0f172a]">{title}</p>
-        <p className="truncate text-xs text-[#64748b]">{cat}</p>
+        <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{title}</p>
+        <p className="truncate text-xs text-[var(--text-secondary)]">{cat} · {account}</p>
       </div>
 
       <div className="shrink-0 text-right">
-        <p className={cn("text-sm font-bold number-align", isIncome ? "text-[#007a50]" : "text-[#c23b3f]")}>
+        <p className={cn("number-align text-sm font-semibold", isIncome ? "text-[var(--income)]" : "text-[var(--expense)]")}>
           {isIncome ? "+" : "-"}
           {formatIDR(item.amount)}
         </p>
-        <p className="truncate text-xs text-[#64748b]">{account}</p>
       </div>
     </div>
   );
 }
 
 export const TransactionRow = memo(TransactionRowBase);
+
+/** Dense table row for desktop. */
+function TransactionTableRowBase({ item, accounts, categories, checked, onToggle }: TransactionRowProps) {
+  const cat = categoryName(categories, item.category_id, item.type);
+  const account = accountName(accounts, item.account_id);
+  const isIncome = item.type === "income";
+  const title = item.notes?.trim() || cat;
+
+  return (
+    <tr className={cn("transition-colors hover:bg-[var(--surface-subtle)]", checked && "bg-[var(--primary-soft)]")}>
+      <td className="py-3 pl-3 pr-2 align-middle">
+        <Checkbox
+          checked={checked}
+          onChange={(event) => onToggle(item.id, event.target.checked)}
+          aria-label={`Pilih transaksi ${title}`}
+        />
+      </td>
+      <td className="number-align whitespace-nowrap py-3 pr-4 text-sm text-[var(--text-secondary)]">{item.transaction_date?.slice(0, 10)}</td>
+      <td className="py-3 pr-4 text-sm font-semibold text-[var(--text-primary)]">
+        <span className="line-clamp-1">{title}</span>
+      </td>
+      <td className="py-3 pr-4 text-sm text-[var(--text-secondary)]">{cat}</td>
+      <td className="py-3 pr-4 text-sm text-[var(--text-secondary)]">{account}</td>
+      <td className="py-3 pr-3 text-right">
+        <span className={cn("number-align text-sm font-semibold", isIncome ? "text-[var(--income)]" : "text-[var(--expense)]")}>
+          {isIncome ? "+" : "-"}
+          {formatIDR(item.amount)}
+        </span>
+      </td>
+    </tr>
+  );
+}
+
+export const TransactionTableRow = memo(TransactionTableRowBase);

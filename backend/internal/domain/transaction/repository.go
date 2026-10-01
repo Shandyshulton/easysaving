@@ -35,6 +35,11 @@ type DailyTotal struct {
 
 type Repository interface {
 	CreateTx(ctx context.Context, db *gorm.DB, item *Transaction) error
+	// CreateIfNotExistsTx inserts a transaction using ON CONFLICT DO NOTHING against
+	// the (scheduled_transaction_id, scheduled_due_date) unique index. It reports
+	// whether a row was actually inserted, which lets the scheduler stay idempotent
+	// at the database level even if a job runs twice concurrently.
+	CreateIfNotExistsTx(ctx context.Context, db *gorm.DB, item *Transaction) (bool, error)
 	UpdateTx(ctx context.Context, db *gorm.DB, item *Transaction) error
 	DeleteTx(ctx context.Context, db *gorm.DB, item *Transaction) error
 	FindByID(ctx context.Context, id, userID string) (*Transaction, error)

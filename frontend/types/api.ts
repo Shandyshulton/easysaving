@@ -29,6 +29,53 @@ export type Transaction = {
   account_id: string;
   transaction_date: string;
   notes?: string;
+  scheduled_transaction_id?: string;
+  scheduled_due_date?: string;
+};
+
+export type ScheduleMode = "auto" | "remind";
+export type ScheduleFrequency = "daily" | "weekly" | "monthly" | "yearly";
+
+export type ScheduledTransaction = {
+  id: string;
+  user_id: string;
+  account_id: string;
+  category_id: string;
+  type: "income" | "expense";
+  name: string;
+  /** Absent for remind mode when the bill amount is unknown. */
+  amount?: string;
+  mode: ScheduleMode;
+  frequency: ScheduleFrequency;
+  interval: number;
+  start_date: string;
+  end_date?: string;
+  next_due_date: string;
+  remind_days_before: number;
+  is_active: boolean;
+  notes?: string;
+  /** Computed by the API: how many whole periods are already past due. */
+  overdue_periods: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SchedulePreview = {
+  next_due_date: string;
+  past_count: number;
+  past_dates?: string[];
+  skipped_too_old: number;
+  will_create_now: boolean;
+  upcoming_preview?: string[];
+};
+
+export type ScheduledRunResult = {
+  processed: number;
+  created: number;
+  skipped: number;
+  failed: number;
+  truncated: number;
+  errors?: string[];
 };
 
 export type CategoryTotal = {
