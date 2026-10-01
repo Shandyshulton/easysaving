@@ -23,6 +23,8 @@ import (
 	"easysaving/backend/internal/delivery/http/route"
 	"easysaving/backend/internal/pkg/email"
 	jwtpkg "easysaving/backend/internal/pkg/jwt"
+	"easysaving/backend/internal/pkg/ratelimit"
+	"easysaving/backend/internal/pkg/vision"
 	"easysaving/backend/internal/repository/postgres"
 	accountusecase "easysaving/backend/internal/usecase/account"
 	authusecase "easysaving/backend/internal/usecase/auth"
@@ -69,6 +71,16 @@ func main() {
 	reportUC := reportusecase.New(transactionRepo, accountRepo)
 	scheduledUC := scheduledusecase.New(scheduledRepo, transactionRepo, accountRepo, categoryRepo)
 
+	// Receipt scan feature (optional). Enabled only when GEMINI_API_KEY is set.
+	visionProvider := vision.NewGemini(cfg.GeminiAPIKey, cfg.GeminiModel)
+	receiptLimiter := ratelimit.NewReceiptLimiter(cfg.ReceiptScanPerMin, cfg.ReceiptScanPerDay, cfg.ReceiptScanGlobalPM)
+	receiptEnabled := cfg.GeminiAPIKey != ""
+	if receiptEnabled {
+		log.Printf("receipt scan enabled (model=%s)", cfg.GeminiModel)
+	} else {
+		log.Printf("receipt scan disabled (GEMINI_API_KEY not set)")
+	}
+
 	if err := os.MkdirAll(filepath.Dir(cfg.APILogPath), 0755); err != nil {
 		log.Fatal(err)
 	}
@@ -106,6 +118,7 @@ func main() {
 		Transactions: handler.NewTransactionHandler(transactionUC),
 		Reports:      handler.NewReportHandler(reportUC),
 		Scheduled:    handler.NewScheduledTransactionHandler(scheduledUC),
+		Receipt:      handler.NewReceiptHandler(visionProvider, receiptLimiter, receiptEnabled),
 	}, jwt)
 
 	// Background scheduler: runs once shortly after boot, then every 6 hours.

@@ -20,6 +20,13 @@ type Config struct {
 	SMTPUser        string
 	SMTPPassword    string
 	SMTPFrom        string
+
+	// Receipt scan (Gemini vision). GeminiAPIKey empty => feature disabled.
+	GeminiAPIKey        string
+	GeminiModel         string
+	ReceiptScanPerMin   int
+	ReceiptScanPerDay   int
+	ReceiptScanGlobalPM int
 }
 
 func Load() Config {
@@ -40,6 +47,16 @@ func Load() Config {
 		SMTPUser:        getenv("SMTP_USER", ""),
 		SMTPPassword:    getenv("SMTP_PASSWORD", ""),
 		SMTPFrom:        getenv("SMTP_FROM", ""),
+
+		GeminiAPIKey: getenv("GEMINI_API_KEY", ""),
+		GeminiModel:  getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+		// Per-user limits.
+		ReceiptScanPerMin: getenvInt("RECEIPT_SCAN_PER_MINUTE", 5),
+		ReceiptScanPerDay: getenvInt("RECEIPT_SCAN_PER_DAY", 30),
+		// App-wide ceiling. Gemini free tier is per-project (~10 RPM for
+		// 2.5 Flash per Google docs/third-party refs), so keep the global
+		// default comfortably below that to leave headroom.
+		ReceiptScanGlobalPM: getenvInt("RECEIPT_SCAN_GLOBAL_PER_MINUTE", 8),
 	}
 }
 
@@ -63,6 +80,15 @@ func (c Config) Validate() error {
 func getenv(key, fallback string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
+	}
+	return fallback
+}
+
+func getenvInt(key string, fallback int) int {
+	if value := os.Getenv(key); value != "" {
+		if n, err := strconv.Atoi(value); err == nil && n > 0 {
+			return n
+		}
 	}
 	return fallback
 }

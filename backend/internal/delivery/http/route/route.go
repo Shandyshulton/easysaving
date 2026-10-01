@@ -15,6 +15,7 @@ type Handlers struct {
 	Transactions *handler.TransactionHandler
 	Reports      *handler.ReportHandler
 	Scheduled    *handler.ScheduledTransactionHandler
+	Receipt      *handler.ReceiptHandler
 }
 
 func Register(r *gin.Engine, h Handlers, jwt jwtpkg.Service) {
@@ -55,4 +56,10 @@ func Register(r *gin.Engine, h Handlers, jwt jwtpkg.Service) {
 	protected.PATCH("/scheduled/:id/active", h.Scheduled.Toggle)
 	protected.POST("/scheduled/:id/pay", h.Scheduled.MarkPaid)
 	protected.POST("/scheduled/:id/skip", h.Scheduled.SkipPeriod)
+
+	// Receipt scan (optional feature; handler reports unavailable when the
+	// vision provider has no API key configured).
+	if h.Receipt != nil {
+		protected.POST("/receipts/scan", h.Receipt.Scan)
+	}
 }
