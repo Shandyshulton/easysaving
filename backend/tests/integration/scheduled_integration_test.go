@@ -4,7 +4,7 @@
 //
 // Run them with (PowerShell):
 //
-//	$env:TEST_DATABASE_URL = "host=127.0.0.1 user=postgres password=174311Ss dbname=easysaving_test port=55432 sslmode=disable TimeZone=Asia/Jakarta"
+//	$env:TEST_DATABASE_URL = "host=127.0.0.1 user=postgres password=<password> dbname=easysaving_test port=55432 sslmode=disable TimeZone=Asia/Jakarta"
 //	go test ./tests/integration/ -v
 //
 // The suite creates its own user/account/category per test and removes them
