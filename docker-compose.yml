@@ -9,7 +9,7 @@ services:
     ports:
       # Host 55432 -> container 5432. Port host unik dipilih agar tidak bentrok
       # dengan Postgres/relay lain (mis. WSL) di 5432/5433. Container internal tetap 5432.
-      - "55432:5432"
+      - "127.0.0.1:55432:5432"
     volumes:
       - easysaving_pg:/var/lib/postgresql/data
     healthcheck:
